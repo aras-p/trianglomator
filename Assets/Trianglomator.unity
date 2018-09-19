@@ -143,9 +143,9 @@ RectTransform:
   m_Father: {fileID: 1648030714}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 125, y: -246.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 567, y: 100}
   m_SizeDelta: {x: 294.67, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &507347728
@@ -277,11 +277,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ead0470fa2c6d4ca74d59a7333b2f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SourceTex: {fileID: 2800000, guid: aecb67b39ee8da449b61c237b4212a41, type: 3}
   m_Triangles: 100
   m_IterationsPerUpdate: 100
   m_CS: {fileID: 7200000, guid: 58ec54dc0f398944e947ee0ca0e79bb8, type: 3}
   m_Shader: {fileID: 4800000, guid: 54f6abf120d201246ae58ffff0d76344, type: 3}
+  m_Source: {fileID: 1284555783}
   m_DestImage: {fileID: 570694747}
   m_BestImage: {fileID: 1665268592}
   m_Text: {fileID: 507347728}
@@ -407,7 +407,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 2800000, guid: aecb67b39ee8da449b61c237b4212a41, type: 3}
+  m_Texture: {fileID: 2800000, guid: bd53a49f3072d53489de302b39f6e10f, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -528,11 +528,11 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
+  m_ReferenceResolution: {x: 640, y: 480}
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96

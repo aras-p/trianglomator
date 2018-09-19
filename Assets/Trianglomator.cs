@@ -26,11 +26,11 @@ public struct Score
 
 public class Trianglomator : MonoBehaviour
 {
-	public Texture2D m_SourceTex;
 	public int m_Triangles = 100;
 	public int m_IterationsPerUpdate = 10;
 	public ComputeShader m_CS;
 	public Shader m_Shader;
+	public UnityEngine.UI.RawImage m_Source;
 	public UnityEngine.UI.RawImage m_DestImage;
 	public UnityEngine.UI.RawImage m_BestImage;
 	public UnityEngine.UI.Text m_Text;
@@ -64,15 +64,16 @@ public class Trianglomator : MonoBehaviour
 			return;
 		if (!m_Shader)
 			return;
-		if (!m_SourceTex)
+		var sourceTex = m_Source.texture;
+		if (!sourceTex)
 			return;
 
 		if (!m_RT)
 		{
 			var desc = new RenderTextureDescriptor
 			{
-				width = m_SourceTex.width,
-				height = m_SourceTex.height,
+				width = sourceTex.width,
+				height = sourceTex.height,
 				dimension = TextureDimension.Tex2D,
 				volumeDepth = 1,
 				msaaSamples = 1,
@@ -84,7 +85,7 @@ public class Trianglomator : MonoBehaviour
 			m_RTBest = new RenderTexture(desc);
 			m_RTBest.Create();
 			m_BestImage.texture = m_RTBest;
-			m_CS.SetTexture(2, "_SourceTex", m_SourceTex);
+			m_CS.SetTexture(2, "_SourceTex", sourceTex);
 			m_CS.SetTexture(2, "_DestTex", m_RT);
 		}
 
@@ -139,8 +140,8 @@ public class Trianglomator : MonoBehaviour
 		{
 			para[0].triCount = m_Triangles;
 			para[0].frame = ++m_Counter;
-			para[0].width = m_SourceTex.width;
-			para[0].height = m_SourceTex.height;
+			para[0].width = sourceTex.width;
+			para[0].height = sourceTex.height;
 			m_Params.SetData(para);
 
 			m_CS.Dispatch(0, (m_Triangles+63)/64, 1, 1);
@@ -152,11 +153,11 @@ public class Trianglomator : MonoBehaviour
 			m_Material.SetPass(0);
 			Graphics.DrawProcedural(MeshTopology.Triangles, m_Triangles * 3);
 
-			m_CS.Dispatch(2, (m_SourceTex.width+7)/8, (m_SourceTex.height+7)/8, 1);
+			m_CS.Dispatch(2, (sourceTex.width+7)/8, (sourceTex.height+7)/8, 1);
 		}
 
 		m_Score.GetData(sc);
-		var fitness = (1.0 - sc[0].bestScore / (double) (m_SourceTex.width * m_SourceTex.height * 3 * 255)) * 100.0;
+		var fitness = (1.0 - sc[0].bestScore / (double) (sourceTex.width * sourceTex.height * 3 * 255)) * 100.0;
 		var time = Time.realtimeSinceStartup;
 		m_Text.text = $"fit {fitness:F2}% time {time:F2}s\niter {sc[0].iterations} impr {sc[0].improvements}\n{m_Log}";
 		var ifitness = (int) fitness;
