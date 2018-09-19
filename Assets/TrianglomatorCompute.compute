@@ -73,6 +73,7 @@ void CSCopy (uint3 id : SV_DispatchThreadID)
 void CSMutate (uint3 id : SV_DispatchThreadID)
 {
     uint rngstate = (_Params[0].frame + 1) * 17;
+    _Score[0].score = 0;
     uint shapeIndex = RNG(rngstate) % _Params[0].triCount;
     uint roulette = RNG(rngstate) % 21;
     // random color
@@ -136,7 +137,6 @@ void CSCalcScore (uint3 dtid : SV_DispatchThreadID, uint3 gid : SV_GroupThreadID
 {
     if (dtid.x == 0 && dtid.y == 0)
     {
-        _Score[0].score = 0;
         InterlockedAdd(_Score[0].iterations, 1);
     }
     if (gid.x == 0 && gid.y == 0)
