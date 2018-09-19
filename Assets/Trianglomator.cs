@@ -24,7 +24,7 @@ public struct Score
 	public uint improvements;
 }
 
-public class GA : MonoBehaviour
+public class Trianglomator : MonoBehaviour
 {
 	public Texture2D m_SourceTex;
 	public int m_Triangles = 100;
