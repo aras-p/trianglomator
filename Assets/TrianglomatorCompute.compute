@@ -5,7 +5,6 @@
 struct Params
 {
     uint triCount;
-    uint frame;
     uint width;
     uint height;
 };
@@ -17,6 +16,7 @@ struct Score
     uint bestScore;
     uint iterations;
     uint improvements;
+    uint rngseed;
 };
 RWStructuredBuffer<Score> _Score;
 
@@ -46,7 +46,7 @@ float RandomFloat01(inout uint state)
     return (RNG(state) & 0xFFFFFF) / 16777216.0f;
 }
 
-[numthreads(64,1,1)]
+[numthreads(128,1,1)]
 void CSCopy (uint3 id : SV_DispatchThreadID)
 {
     uint triID = id.x;
@@ -72,8 +72,9 @@ void CSCopy (uint3 id : SV_DispatchThreadID)
 [numthreads(1,1,1)]
 void CSMutate (uint3 id : SV_DispatchThreadID)
 {
-    uint rngstate = (_Params[0].frame + 1) * 17;
     _Score[0].score = 0;
+
+    uint rngstate = _Score[0].rngseed;
     uint shapeIndex = RNG(rngstate) % _Params[0].triCount;
     uint roulette = RNG(rngstate) % 21;
     // random color
@@ -128,6 +129,8 @@ void CSMutate (uint3 id : SV_DispatchThreadID)
         _DNA[shapeIndex] = _DNA[shapeIndex2];
         _DNA[shapeIndex2] = tmp;
     }
+
+    _Score[0].rngseed = rngstate;
 }
 
 groupshared uint localScore = 0;
@@ -135,11 +138,11 @@ groupshared uint localScore = 0;
 [numthreads(16,16,1)]
 void CSCalcScore (uint3 dtid : SV_DispatchThreadID, uint3 gid : SV_GroupThreadID)
 {
-    if (dtid.x == 0 && dtid.y == 0)
+    if (dtid.x + dtid.y == 0)
     {
         InterlockedAdd(_Score[0].iterations, 1);
     }
-    if (gid.x == 0 && gid.y == 0)
+    if (gid.x + gid.y == 0)
     {
         localScore = 0;
     }
@@ -151,7 +154,7 @@ void CSCalcScore (uint3 dtid : SV_DispatchThreadID, uint3 gid : SV_GroupThreadID
     InterlockedAdd(localScore, idif);
 
     GroupMemoryBarrierWithGroupSync();
-    if (gid.x == 0 && gid.y == 0)
+    if (gid.x + gid.y == 0)
     {
         InterlockedAdd(_Score[0].score, localScore);
     }
