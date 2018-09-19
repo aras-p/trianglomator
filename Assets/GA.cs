@@ -32,9 +32,11 @@ public class GA : MonoBehaviour
 	public ComputeShader m_CS;
 	public Shader m_Shader;
 	public UnityEngine.UI.RawImage m_DestImage;
+	public UnityEngine.UI.RawImage m_BestImage;
 	public UnityEngine.UI.Text m_Text;
 
 	RenderTexture m_RT;
+	RenderTexture m_RTBest;
 	ComputeBuffer m_DNA;
 	ComputeBuffer m_Params;
 	ComputeBuffer m_Score;
@@ -46,6 +48,7 @@ public class GA : MonoBehaviour
 	void OnDestroy()
 	{
 		DestroyImmediate(m_RT);
+		DestroyImmediate(m_RTBest);
 		DestroyImmediate(m_Material);
 		if (m_DNA != null) m_DNA.Dispose();
 		m_DNA = null;
@@ -78,6 +81,9 @@ public class GA : MonoBehaviour
 			m_RT = new RenderTexture(desc);
 			m_RT.Create();
 			m_DestImage.texture = m_RT;
+			m_RTBest = new RenderTexture(desc);
+			m_RTBest.Create();
+			m_BestImage.texture = m_RTBest;
 			m_CS.SetTexture(2, "_SourceTex", m_SourceTex);
 			m_CS.SetTexture(2, "_DestTex", m_RT);
 		}
@@ -139,9 +145,10 @@ public class GA : MonoBehaviour
 
 			m_CS.Dispatch(0, (m_Triangles+63)/64, 1, 1);
 			m_CS.Dispatch(1, 1, 1, 1);
+
 			Graphics.SetRenderTarget(m_RT);
 			GL.Clear(false, true, Color.white);
-
+			m_Material.SetInt("_StartVertex", 0);
 			m_Material.SetPass(0);
 			Graphics.DrawProcedural(MeshTopology.Triangles, m_Triangles * 3);
 
@@ -158,5 +165,11 @@ public class GA : MonoBehaviour
 			m_Log += $"got {fitness:F2}% at time {time:F2}, iters {sc[0].iterations}\n";
 			m_GotFitness = ifitness;
 		}
+
+		Graphics.SetRenderTarget(m_RTBest);
+		GL.Clear(false, true, Color.white);
+		m_Material.SetInt("_StartVertex", m_Triangles * 3);
+		m_Material.SetPass(0);
+		Graphics.DrawProcedural(MeshTopology.Triangles, m_Triangles * 3);
 	}
 }

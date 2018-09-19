@@ -28,10 +28,12 @@
 			};
 
 			StructuredBuffer<Triangle> _DNA;
+			int _StartVertex;
 
 			v2f vert (uint vid : SV_VertexID)
 			{
 				v2f o;
+				vid += _StartVertex;
 				uint tid = vid / 3;
 				uint index = vid % 3;
 				float2 pos = _DNA[tid].posA;
