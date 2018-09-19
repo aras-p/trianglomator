@@ -1,0 +1,114 @@
+﻿#pragma kernel CSCopy
+#pragma kernel CSMutate
+#pragma kernel CSCalcScore
+
+struct Params
+{
+    uint triCount;
+    uint frame;
+    uint width;
+    uint height;
+};
+StructuredBuffer<Params> _Params;
+
+struct Score
+{
+    uint score;
+    uint bestScore;
+    uint iterations;
+    uint improvements;
+};
+RWStructuredBuffer<Score> _Score;
+
+struct Triangle
+{
+    float2 posA, posB, posC;
+    float4 col;
+};
+
+RWStructuredBuffer<Triangle> _DNA;
+
+Texture2D _SourceTex;
+Texture2D _DestTex;
+
+
+uint RNG(inout uint state)
+{
+    uint x = state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 15;
+    state = x;
+    return x;
+}
+float RandomFloat01(inout uint state)
+{
+    return (RNG(state) & 0xFFFFFF) / 16777216.0f;
+}
+
+[numthreads(64,1,1)]
+void CSCopy (uint3 id : SV_DispatchThreadID)
+{
+    uint triID = id.x;
+    if (triID >= _Params[0].triCount)
+        return;
+    bool better = _Score[0].score <= _Score[0].bestScore;
+    if (!better)
+    {
+        _DNA[triID] = _DNA[triID + _Params[0].triCount];
+    }
+    else
+    {
+        _DNA[triID + _Params[0].triCount] = _DNA[triID];
+    }
+    GroupMemoryBarrierWithGroupSync();
+    if (triID == 0 && better)
+    {
+        _Score[0].bestScore = _Score[0].score;
+        _Score[0].improvements += 1;
+    }
+}
+
+[numthreads(1,1,1)]
+void CSMutate (uint3 id : SV_DispatchThreadID)
+{
+    uint rngstate = (_Params[0].frame + 1) * 17;
+    uint shapeIndex = RNG(rngstate) % _Params[0].triCount;
+    uint roulette = RNG(rngstate) % 8;
+    if (roulette == 0)
+        _DNA[shapeIndex].col.r = RandomFloat01(rngstate);
+    if (roulette == 1)
+        _DNA[shapeIndex].col.g = RandomFloat01(rngstate);
+    if (roulette == 2)
+        _DNA[shapeIndex].col.b = RandomFloat01(rngstate);
+    if (roulette == 3)
+        _DNA[shapeIndex].col.a = RandomFloat01(rngstate);
+    if (roulette == 4)
+        _DNA[shapeIndex].posA.x = RandomFloat01(rngstate);
+    if (roulette == 5)
+        _DNA[shapeIndex].posA.y = RandomFloat01(rngstate);
+    if (roulette == 6)
+        _DNA[shapeIndex].posB.x = RandomFloat01(rngstate);
+    if (roulette == 7)
+        _DNA[shapeIndex].posB.y = RandomFloat01(rngstate);
+    if (roulette == 8)
+        _DNA[shapeIndex].posC.x = RandomFloat01(rngstate);
+    if (roulette == 9)
+        _DNA[shapeIndex].posC.y = RandomFloat01(rngstate);
+}
+
+[numthreads(8,8,1)]
+void CSCalcScore (uint3 dtid : SV_DispatchThreadID)
+{
+    if (dtid.x == 0 && dtid.y == 0)
+    {
+        _Score[0].score = 0;
+        InterlockedAdd(_Score[0].iterations, 1);
+    }
+    GroupMemoryBarrierWithGroupSync();
+    float3 src = _SourceTex.Load(int3(dtid.xy,0)).xyz;
+    float3 cur = _DestTex.Load(int3(dtid.xy,0)).xyz;
+    float3 dif = abs(src - cur) * 255.0;
+    uint idif = (uint)(dif.x + dif.y + dif.z);
+    InterlockedAdd(_Score[0].score, idif);
+}
