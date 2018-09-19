@@ -74,7 +74,7 @@ void CSMutate (uint3 id : SV_DispatchThreadID)
 {
     uint rngstate = (_Params[0].frame + 1) * 17;
     uint shapeIndex = RNG(rngstate) % _Params[0].triCount;
-    uint roulette = RNG(rngstate) % 8;
+    uint roulette = RNG(rngstate) % 10;
     if (roulette == 0)
         _DNA[shapeIndex].col.r = RandomFloat01(rngstate);
     if (roulette == 1)

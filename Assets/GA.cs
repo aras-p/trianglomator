@@ -93,6 +93,7 @@ public class GA : MonoBehaviour
 				initData[i].posB = new Vector2(Random.value, Random.value);
 				initData[i].posC = new Vector2(Random.value, Random.value);
 				initData[i].col = new Color(Random.value, Random.value, Random.value, Random.value);
+				initData[i + m_Triangles] = initData[i];
 			}
 			m_DNA.SetData(initData);
 			m_CS.SetBuffer(0, "_DNA", m_DNA);
