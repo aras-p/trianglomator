@@ -74,7 +74,7 @@ void CSMutate (uint3 id : SV_DispatchThreadID)
 {
     uint rngstate = (_Params[0].frame + 1) * 17;
     uint shapeIndex = RNG(rngstate) % _Params[0].triCount;
-    uint roulette = RNG(rngstate) % 10;
+    uint roulette = RNG(rngstate) % 20;
     if (roulette == 0)
         _DNA[shapeIndex].col.r = RandomFloat01(rngstate);
     if (roulette == 1)
@@ -95,6 +95,26 @@ void CSMutate (uint3 id : SV_DispatchThreadID)
         _DNA[shapeIndex].posC.x = RandomFloat01(rngstate);
     if (roulette == 9)
         _DNA[shapeIndex].posC.y = RandomFloat01(rngstate);
+    if (roulette == 10)
+        _DNA[shapeIndex].col.r = saturate(_DNA[shapeIndex].col.r + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 11)
+        _DNA[shapeIndex].col.g = saturate(_DNA[shapeIndex].col.g + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 12)
+        _DNA[shapeIndex].col.b = saturate(_DNA[shapeIndex].col.b + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 13)
+        _DNA[shapeIndex].col.a = saturate(_DNA[shapeIndex].col.a + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 14)
+        _DNA[shapeIndex].posA.x = saturate(_DNA[shapeIndex].posA.x + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 15)
+        _DNA[shapeIndex].posA.y = saturate(_DNA[shapeIndex].posA.y + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 16)
+        _DNA[shapeIndex].posB.x = saturate(_DNA[shapeIndex].posB.x + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 17)
+        _DNA[shapeIndex].posB.y = saturate(_DNA[shapeIndex].posB.y + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 18)
+        _DNA[shapeIndex].posC.x = saturate(_DNA[shapeIndex].posC.x + RandomFloat01(rngstate)*0.2-0.1);
+    if (roulette == 19)
+        _DNA[shapeIndex].posC.y = saturate(_DNA[shapeIndex].posC.y + RandomFloat01(rngstate)*0.2-0.1);
 }
 
 groupshared uint localScore = 0;
