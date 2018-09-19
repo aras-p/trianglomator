@@ -97,18 +97,30 @@ void CSMutate (uint3 id : SV_DispatchThreadID)
         _DNA[shapeIndex].posC.y = RandomFloat01(rngstate);
 }
 
+groupshared uint localScore = 0;
+
 [numthreads(8,8,1)]
-void CSCalcScore (uint3 dtid : SV_DispatchThreadID)
+void CSCalcScore (uint3 dtid : SV_DispatchThreadID, uint3 gid : SV_GroupThreadID)
 {
     if (dtid.x == 0 && dtid.y == 0)
     {
         _Score[0].score = 0;
         InterlockedAdd(_Score[0].iterations, 1);
     }
+    if (gid.x == 0 && gid.y == 0)
+    {
+        localScore = 0;
+    }
     GroupMemoryBarrierWithGroupSync();
     float3 src = _SourceTex.Load(int3(dtid.xy,0)).xyz;
     float3 cur = _DestTex.Load(int3(dtid.xy,0)).xyz;
     float3 dif = abs(src - cur) * 255.0;
     uint idif = (uint)(dif.x + dif.y + dif.z);
-    InterlockedAdd(_Score[0].score, idif);
+    InterlockedAdd(localScore, idif);
+
+    GroupMemoryBarrierWithGroupSync();
+    if (gid.x == 0 && gid.y == 0)
+    {
+        InterlockedAdd(_Score[0].score, localScore);
+    }
 }
