@@ -1,6 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct Triangle
@@ -187,5 +191,22 @@ public class Trianglomator : MonoBehaviour
 		m_Material.SetInt("_StartVertex", m_Triangles * 3);
 		m_Material.SetPass(0);
 		Graphics.DrawProcedural(MeshTopology.Triangles, m_Triangles * 3);
+	}
+
+	void OnGUI()
+	{
+		if (GUILayout.Button("Dump Triangles"))
+		{
+			var tris = new Triangle[m_Triangles];
+			m_DNA.GetData(tris, 0, m_Triangles, m_Triangles);
+			var sb = new StringBuilder();
+			foreach (var tri in tris)
+			{
+				sb.AppendLine($"Tri({tri.posA.x:F3},{tri.posA.y:F3},{tri.posB.x:F3},{tri.posB.y:F3},{tri.posC.x:F3},{tri.posC.y:F3}, vec3({tri.col.r:F3},{tri.col.g:F3},{tri.col.b:F3}), {tri.col.a:F3});");
+			}
+
+			File.WriteAllText("output.txt", sb.ToString());
+			Debug.Log($"Wrote output.txt at {Time.realtimeSinceStartup}");
+		}
 	}
 }
